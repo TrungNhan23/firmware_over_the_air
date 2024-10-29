@@ -11,7 +11,9 @@ FlashSTM32 devKit(18, 14);
 void setup()
 {
     Serial.begin(115200);
-    FlashPort.begin(9600, SERIAL_8N1, 16, 17);
+    FlashPort.begin(9600, SERIAL_8E1, 16, 17);
+    delay(500);
+
     devKit.setup();
 
     WiFi.begin(ssid, pass);
@@ -52,21 +54,16 @@ void setup()
         Serial.print("Firmware file size: ");
         Serial.println(fileSize);
 
-        // Attempt to enter boot mode before flashing
         if (!devKit.enterBootMode(FlashPort))
         {
             Serial.println("Failed to enter bootloader mode.");
-            return; // Stop if we can't enter bootloader mode
+            return;
         }
 
-        // Proceed with flashing
         devKit.Flash(firmwareFile, FlashPort);
+        delay(5);
         devKit.exitBootMode();
         Serial.println("Firmware upload complete");
-    }
-    else
-    {
-        Serial.println("Firmware download failed");
     }
 }
 void loop()

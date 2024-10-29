@@ -22,10 +22,10 @@ public:
     void setup();
     bool DownloadFirmware(String url);
     bool parseIntelHexLine(String line, uint8_t* data, uint8_t* length, uint32_t* address);  
-    bool SendFirmware(uint8_t *data, size_t length, uint32_t address, HardwareSerial &flashPort);
+    // bool SendFirmware(uint8_t *data, size_t length, uint32_t address, HardwareSerial &flashPort);
     bool enterBootMode(HardwareSerial &flashPort);
     void exitBootMode();
     void Flash(File &firmwareFile, HardwareSerial &stm32);
-    void Erase();
+    void Erase(HardwareSerial &flashPort);
     ~FlashSTM32();
 };
