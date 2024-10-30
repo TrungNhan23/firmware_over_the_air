@@ -45,54 +45,6 @@ bool FlashSTM32::DownloadFirmware(String url)
     }
 }
 
-bool FlashSTM32::parseIntelHexLine(String line, uint8_t *data, uint8_t *length, uint32_t *address)
-{
-    if (line[0] != ':')
-    {
-        Serial.println("Invalid HEX line: Missing starting ':'");
-        return false;
-    }
-
-    // Chuyển đổi số byte
-    int byteCount = strtol(line.substring(1, 3).c_str(), NULL, 16);
-    if (byteCount <= 0 || byteCount > 255)
-    {
-        Serial.println("Invalid HEX line: Incorrect byte count");
-        return false;
-    }
-
-    // Chuyển đổi địa chỉ (4 kí tự tiếp theo là địa chỉ 16-bit)
-    *address = strtol(line.substring(3, 7).c_str(), NULL, 16);
-    if (*address > 0xFFFF)
-    {
-        Serial.println("Invalid HEX line: Incorrect address");
-        return false;
-    }
-
-    // Chuyển đổi loại bản ghi (sau 4 ký tự địa chỉ)
-    int recordType = strtol(line.substring(7, 9).c_str(), NULL, 16);
-    if (recordType != 0x00)
-    { // 0x00: dữ liệu thực tế, các loại khác không dùng trong upload firmware
-        Serial.println("Non-data record type, skipping line");
-        return false;
-    }
-
-    *length = byteCount;
-
-    // Chuyển đổi các byte dữ liệu
-    for (int i = 0; i < byteCount; i++)
-    {
-        data[i] = strtol(line.substring(9 + i * 2, 11 + i * 2).c_str(), NULL, 16);
-        if (data[i] > 0xFF)
-        {
-            Serial.printf("Invalid data byte at position %d\n", i);
-            return false;
-        }
-    }
-
-    Serial.println("Parsed HEX line successfully");
-    return true;
-}
 
 bool FlashSTM32::enterBootMode(HardwareSerial &flashPort)
 {

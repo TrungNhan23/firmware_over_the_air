@@ -2,7 +2,7 @@
 #include "SPIFFS.h"
 #include <WiFi.h>
 #include <HTTPClient.h>
-
+#include "IntelHexParser.h"
 
 #define ACK_MESSAGE 0x79
 #define NAK_MESSAGE 0x1F
@@ -10,7 +10,7 @@
 String FindNameOfFile(String url);
 
 
-class FlashSTM32
+class FlashSTM32: public IntelHexParser
 {
 private:
     uint8_t port;
@@ -20,9 +20,7 @@ private:
 public:
     FlashSTM32(int rst_pin, int boot0_pin);
     void setup();
-    bool DownloadFirmware(String url);
-    bool parseIntelHexLine(String line, uint8_t* data, uint8_t* length, uint32_t* address);  
-    // bool SendFirmware(uint8_t *data, size_t length, uint32_t address, HardwareSerial &flashPort);
+    bool DownloadFirmware(String url);  
     bool enterBootMode(HardwareSerial &flashPort);
     void exitBootMode();
     void Flash(File &firmwareFile, HardwareSerial &stm32);
