@@ -10,7 +10,7 @@ from django.urls import reverse
 # from .models import ALM_Server
 from .authen import sql_authen_api
 from django.conf import settings
-# from APIs.user_config_api import set_curret_alm_obj
+from APIs.user_config_api import set_curret_fota_obj
 import pyodbc
 from pyodbc import Error
 
@@ -25,11 +25,12 @@ class User_Authentication_Login(APIView):
             return redirect('home')
         
         else:
+            pass
             # Query available ALM server options to log in page
-            alm_servers = ALM_Server.objects.all().values()
-            options = [{"value": item['host'], "display": item['name']} for item in alm_servers]
+            # alm_servers = ALM_Server.objects.all().values()
+            # options = [{"value": item['host'], "display": item['name']} for item in alm_servers]
 
-            return render(request, 'user_login.html', {'options': options})
+            return render(request, 'user_login.html')
 
     @swagger_auto_schema(
         request_body=openapi.Schema(
@@ -49,23 +50,23 @@ class User_Authentication_Login(APIView):
         # Get log in form data
         username = request.data.get('username')
         password = request.data.get('password')
-
-        # Authenticate with ALM API
-        client = sql_authen_api(username, password, base_url)
+        
+        # Authenticate with FOTA API
+        client = sql_authen_api(username, password)
         
         if (client):
             
-            # Set current alm user object to global setting
-            set_curret_alm_obj(username ,client)
+            # Set current fota user object to global setting
+            set_curret_fota_obj(username ,client)
 
-            # Django authetication again with ALM credentials
+            # Django authetication again with SQL credentials
             user = authenticate(username=username, password=password)
             
             if not user is None:
                 # Log the user in
                 login(request, user)
             else:
-                handle_alm_user(username, password)
+                # handle_alm_user(username, password)
                 user = authenticate(username=username, password=password)
                 login(request, user)
             return redirect('home')

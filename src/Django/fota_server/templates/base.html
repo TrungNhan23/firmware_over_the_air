@@ -20,7 +20,7 @@
     <link rel="stylesheet" type ="text/css" href="{% static 'css/main.css' %}">
     <link rel="stylesheet" type ="text/css" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" type ="text/css" href="{% static 'css/bootstrap-multiselect.css' %}">
-    <!-- <link rel="stylesheet" href="{% static 'css/dropDown_select.css' %}"> -->
+    <link rel="stylesheet" type ="text/css" href="{% static 'resize_col/jquery.resizableColumns.css' %}">
     <!-- JavaScript -->
     <script type="text/javascript" src="{% static 'js/jquery-1.7.1.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'bootstrap-4.3.1/js/bootstrap.bundle.min.js' %}"></script>
@@ -33,7 +33,7 @@
     <script type="text/javascript" src="{% static 'js/main.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/popper.js/' %}"></script>
     <script type="text/javascript" src="{% static 'js/bootstrap.multiselect.min.js' %}"></script>
-    
+    <script type="text/javascript" src="{% static 'resize_col/jquery.resizableColumns.js' %}"></script>
 
     
     <header class="main-header" style="background-color: white; border-image: url(/static/cd_bosch_supergraphic.png) 30 round; border-style: solid none none; border-width: 17px 0 0; position: sticky; top: 0;">
@@ -43,7 +43,7 @@
         <nav class="navbar navbar-light px-5 py-0" style="background-color: #e3f2fd;">
             <div class="home-logo m-3 ml-5">
                 <a class="navbar-brand" href="{% url 'home' %}">
-                    <img src="../../static/UTE_LOGO.png"  height="25" class="d-inline-block align-center" alt="aa">
+                    <img src="../../static/bosch_logo_w340.png"  height="25" class="d-inline-block align-center" alt="aa">
                 </a>
             </div>
             {% if user.is_authenticated %}

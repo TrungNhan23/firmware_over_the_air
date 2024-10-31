@@ -1,7 +1,8 @@
-"""fota_server URL Configuration
+"""
+URL configuration for tfms_server project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/3.2/topics/http/urls/
+    https://docs.djangoproject.com/en/4.2/topics/http/urls/
 Examples:
 Function views
     1. Add an import:  from my_app import views
@@ -20,20 +21,24 @@ from drf_yasg import openapi
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="FOTA Project API",
+        title="TFMS Project API",
         default_version='v1',
-        description="API for FOTA Server",
-        contact=openapi.Contact(email="nghiatrongngo2003@gmail.com"),
-        license=openapi.License(name="UTE License"),
+        description="API for TFMS Server",
+        contact=openapi.Contact(email="admin@example.com"),
+        license=openapi.License(name="BOSCH License"),
     ),
     public=True,
 )
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    
     path('', include('home.urls'),name="home_page"),
     path('home/', include('home.urls')),
+    # path('upload_result/',include('uploadresult.urls')),
     path('accounts/', include('user_authen.urls'),name="authen_page"),
+    # path('drf_yasg_testing/', include('drf_yasg_testing.urls')),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    path('admin/', admin.site.urls),
+
 ]
