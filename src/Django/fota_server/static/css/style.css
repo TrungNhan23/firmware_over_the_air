@@ -115,10 +115,6 @@ select.custom-select{
     height: 8vh;
 }
 
-.table-div{
-    font-size: 12px !important
-}
-
 .completed-tc .status-class {
     color: rgb(47, 255, 75) !important;
 }
@@ -142,7 +138,9 @@ select.custom-select{
 }
 
 .table-div{
-    padding: 30px 50px 0px;
+    font-size: 12px !important;
+    /* max-width: 90% !important; */
+    padding: 30px 30px 0px;
 }
 
 #test-case-loader {
@@ -211,5 +209,4 @@ select.custom-select{
   #response-text{
     font-size: 15px;
   }
-  
-  
+

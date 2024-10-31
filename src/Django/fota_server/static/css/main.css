@@ -919,3 +919,28 @@ button.disabled {
 #tableContent {
     padding-top: 15px;
 }
+
+#confirm-response-text{
+    line-height: 2.0;
+}
+
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+table {
+    width: auto;
+}
+
+
+#tooltiptext {
+    display: none;
+    position: absolute;
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    padding: 5px;
+    border-radius: 3px;
+    font-size: 12px;
+}

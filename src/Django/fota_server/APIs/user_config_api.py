@@ -12,7 +12,7 @@
 
 # """
 
-# from django.conf import settings
+from django.conf import settings
 # from APIs.query_api import Project_Configuration_API
 
 # def get_active_alm_client_obj(username):
@@ -32,15 +32,15 @@
 
 #     return client_obj
 
-# def set_curret_alm_obj(username, client):
+def set_curret_fota_obj(username, client):
 
-#     username  = str(username)
-#     username = username.lower()
+    username  = str(username)
+    username = username.lower()
 
-#     # add new alm client object to setting dict, if exist overwrite it 
+    # add new alm client object to setting dict, if exist overwrite it 
 
-#     alm_client = Project_Configuration_API(client)
-#     settings.ALM_CLIENT.update({username : alm_client})
+    alm_client = Project_Configuration_API(client)
+    settings.ALM_CLIENT.update({username : alm_client})
 
-#     print(settings.ALM_CLIENT)
+    print(settings.ALM_CLIENT)
 
