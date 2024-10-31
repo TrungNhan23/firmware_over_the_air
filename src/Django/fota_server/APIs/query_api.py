@@ -13,14 +13,14 @@
 
 #     return id
 
-# class Project_Configuration_API:
+class Project_Configuration_API:
 
-#     def __init__(self, client):
-#         # init client object that is authenticated while log in
-#         self.client = client
-#         self.project = ""
-#         self.data = {}
-#         # self.proj_client = 
+    def __init__(self, client):
+        # init client object that is authenticated while log in
+        self.client = client
+        self.project = ""
+        self.data = {}
+        # self.proj_client = 
         
 #     # query all GC based on project name
 #     def query_global_configuration(self, project):

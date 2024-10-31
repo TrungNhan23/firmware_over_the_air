@@ -53,6 +53,7 @@ class User_Authentication_Login(APIView):
         
         # Authenticate with FOTA API
         client = sql_authen_api(username, password)
+        print(client)
         
         if (client):
             
