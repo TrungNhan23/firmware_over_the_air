@@ -34,4 +34,4 @@ class homepage(APIView):
         if self.request.user.is_superuser:
             return render(request,"home_admin.html")
         else:
-            return render(request,"home.html")
+            return render(request,"home_admin.html")

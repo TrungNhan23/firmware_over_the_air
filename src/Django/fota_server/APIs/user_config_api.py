@@ -13,7 +13,7 @@
 # """
 
 from django.conf import settings
-# from APIs.query_api import Project_Configuration_API
+from APIs.query_api import Project_Configuration_API
 
 # def get_active_alm_client_obj(username):
 
@@ -39,8 +39,8 @@ def set_curret_fota_obj(username, client):
 
     # add new alm client object to setting dict, if exist overwrite it 
 
-    alm_client = Project_Configuration_API(client)
-    settings.ALM_CLIENT.update({username : alm_client})
+    fota_client = Project_Configuration_API(client)
+    settings.FOTA_CLIENT.update({username : fota_client})
 
-    print(settings.ALM_CLIENT)
+    print(settings.FOTA_CLIENT)
 
