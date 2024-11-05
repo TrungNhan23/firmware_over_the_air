@@ -5,17 +5,24 @@
     <div class="col-sm-2 col-1"></div>  
     <div class="col-sm-4 col-5 h-100">
         <div class="row align-items-center form-select-ex-plan mr-5">
-          <label for="project-select" class="h-10 w-100">Project</label>
-          <select id="project-select" class="h-10 w-100 custom-select">
-            <option value="">Select project</option>
-          </select>
+          <form id="upload-form" action="{% url 'upload_hex' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <label for="hex-file" class="h-10 w-100">Upload Firmware</label>
+            <input type="file" id="hex-file" name="hex_file" accept=".hex" class="form-control mb-2" required>
+            <button type="submit" class="btn btn-primary btn-lg align-self-end px-5 py-2">Upload</button>
+        </form>
+          <!-- <label for="project-select" class="h-10 w-100">Upload Firmware</label>
+          <button id = "save-dtb-btn" type="button" class="btn btn-primary btn-lg align-self-end px-5 py-2">Select Hex file to upload</button> -->
+          <!-- <select id="project-select" class="h-10 w-100 custom-select">
+            <option value="">Select Hex file to upload</option>
+          </select> -->
         </div>
     </div>
     <div class="col-sm-4 col-5 h-100">
       <div class="row align-items-left form-select-ex-plan mr-5">
         <label for="gc-select" class="h-10 w-100">Stream / Baseline</label>
         <select id="gc-select" class="h-10 w-100 custom-select">
-          <!-- <option value=""></option> -->
+          <option value=""></option>
         </select>
       </div>
     </div>
@@ -39,10 +46,10 @@
       </div>
     </div>
   </div>
-  <div class="d-flex justify-content-center align-items-center p-5">
+  <!-- <div class="d-flex justify-content-center align-items-center p-5">
     <button id = "save-dtb-btn" type="button" class="btn btn-primary btn-lg align-self-end px-5 py-2">Save to database</button>
     <span id="tooltiptext">All field need to be selected</span>
-  </div>
+  </div> -->
 </div>
 <div class="modal fade" id="noti-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
@@ -89,6 +96,12 @@
   </div>
 </div>
 
+
+<script>
+  $('#save-dtb-btn').on( "click", function() {
+      $('#confirm-modal').modal('show');
+    });
+</script>
 
 <!-- <script>
   let testMode = false;

@@ -14,6 +14,9 @@ import json
 from datetime import datetime, timezone
 from django.db import models
 from django.views.decorators.csrf import csrf_exempt
+from django.core.files.storage import FileSystemStorage
+from django.conf import settings
+
 # Create your views here.
 
 @method_decorator(login_required,name="dispatch")
@@ -35,3 +38,40 @@ class homepage(APIView):
             return render(request,"home_admin.html")
         else:
             return render(request,"home_admin.html")
+
+@method_decorator(login_required,name="dispatch")
+class upload_hex_file(APIView):
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter('project_name', openapi.IN_QUERY, description="Project name", type=openapi.TYPE_STRING),
+            openapi.Parameter('PC_setup', openapi.IN_QUERY, description="Name PC setup", type=openapi.TYPE_STRING),
+        ],
+        operation_summary="Get execution plan view with parameters."
+    )
+    def get(self,request):
+        """
+        Get execution plan view info
+        """
+        project = request.GET.get('project')
+        PCsetup = request.GET.get('PCsetup')
+        data = {
+            'project' : str(project),
+            'PCsetup' : str(PCsetup),
+            'username': str(request.user)
+        }
+        dataJSON = dumps(data) 
+        # print(project, PCsetup)
+        return render(request,"execution_plan.html", {'data': dataJSON})
+    
+
+def upload_hex(request):
+    if request.method == "POST" and request.FILES.get("hex_file"):
+        hex_file = request.FILES["hex_file"]
+        
+        # Save file using Django's default storage
+        fs = FileSystemStorage(location=settings.MEDIA_ROOT)
+        filename = fs.save(hex_file.name, hex_file)
+        file_url = fs.url(filename)
+        
+        return render(request, "upload.html", {"file_url": file_url, "filename": hex_file.name})
+    return render(request, "upload.html")
