@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 import os
+## importing socket module
+import socket
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -56,6 +58,9 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'fota_server.urls'
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -78,13 +83,37 @@ WSGI_APPLICATION = 'fota_server.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
+
+## getting the hostname by socket.gethostname() method
+hostname = socket.gethostname()
+## getting the IP address using socket.gethostbyname() method
+ip_address = socket.gethostbyname(hostname)
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+        'ENGINE': 'mssql',  # Use appropriate SQL Server backend
+        'NAME': 'FOTA',
+        'USER': '',
+        'PASSWORD': '',
+        'HOST': ip_address,
+        'PORT': '1433',
+        'OPTIONS': {
+            'driver': 'ODBC Driver 17 for SQL Server',  # Ensure you have this ODBC driver installed,ODBC Driver 17 for SQL Server
+            'extra_params': 'Trusted_Connection=yes',  # Optional, for development purposes
+        },
+    },
 }
 
+AUTHENTICATION_BACKENDS = [
+    # 'user_authen.authen.SQLServerAuthBackend',  # Path to your custom backend
+    'django.contrib.auth.backends.ModelBackend',  # Keep the default backend as fallback
+]
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
