@@ -94,14 +94,14 @@ WSGI_APPLICATION = 'fota_server.wsgi.application'
 ## getting the hostname by socket.gethostname() method
 hostname = socket.gethostname()
 ## getting the IP address using socket.gethostbyname() method
-ip_address = socket.gethostbyname(hostname)
+IP_ADDRESS = socket.gethostbyname(hostname)
 DATABASES = {
     'default': {
         'ENGINE': 'mssql',  # Use appropriate SQL Server backend
         'NAME': 'FOTA',
         'USER': '',
         'PASSWORD': '',
-        'HOST': ip_address,
+        'HOST': IP_ADDRESS,
         'PORT': '1433',
         'OPTIONS': {
             'driver': 'ODBC Driver 17 for SQL Server',  # Ensure you have this ODBC driver installed,ODBC Driver 17 for SQL Server

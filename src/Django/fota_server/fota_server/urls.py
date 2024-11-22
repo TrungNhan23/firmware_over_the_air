@@ -37,7 +37,7 @@ urlpatterns = [
     
     path('', include('home.urls'),name="home_page"),
     path('home/', include('home.urls')),
-    # path('upload_result/',include('uploadresult.urls')),
+    # path('upload_firmware/',include('upload.urls')),
     path('accounts/', include('user_authen.urls'),name="authen_page"),
     # path('drf_yasg_testing/', include('drf_yasg_testing.urls')),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),

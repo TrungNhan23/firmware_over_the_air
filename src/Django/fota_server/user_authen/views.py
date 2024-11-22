@@ -20,15 +20,10 @@ class User_Authentication_Login(APIView):
     def get(self,request):
 
         if request.user.is_authenticated:
-
             # Go to home page if user is loged in 
             return redirect('home')
         
         else:
-            # Query available ALM server options to log in page
-            # alm_servers = ALM_Server.objects.all().values()
-            # options = [{"value": item['host'], "display": item['name']} for item in alm_servers]
-
             return render(request, 'user_login.html')
 
     @swagger_auto_schema(
