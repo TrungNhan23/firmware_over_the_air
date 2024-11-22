@@ -1,47 +1,67 @@
 {% extends 'base.html'%}
 {% block page_content %}
 <div id="home-container">
-  <div class="hil-div row m-0 align-items-center">
-    <div class="col-sm-2 col-1"></div>  
-    <div class="col-sm-4 col-5 h-100">
-        <div class="row align-items-center form-select-ex-plan mr-5">
-          <form id="upload-form" action="{% url 'upload_hex' %}" method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            <label for="hex-file" class="h-10 w-100">Upload Firmware</label>
-            <input type="file" id="hex-file" name="hex_file" accept=".hex" class="form-control mb-2" required>
-            <button type="submit" class="btn btn-primary btn-lg align-self-end px-5 py-2">Upload</button>
-        </form>
-          <!-- <label for="project-select" class="h-10 w-100">Upload Firmware</label>
-          <button id = "save-dtb-btn" type="button" class="btn btn-primary btn-lg align-self-end px-5 py-2">Select Hex file to upload</button> -->
-          <!-- <select id="project-select" class="h-10 w-100 custom-select">
-            <option value="">Select Hex file to upload</option>
-          </select> -->
-        </div>
-    </div>
-    <div class="col-sm-4 col-5 h-100">
-      <div class="row align-items-left form-select-ex-plan mr-5">
-        <label for="gc-select" class="h-10 w-100">Stream / Baseline</label>
-        <select id="gc-select" class="h-10 w-100 custom-select">
-          <option value=""></option>
-        </select>
+  <!-- <form method="post"></form>
+  {% csrf_token %}
+  {% if messages %}
+  <ul class="messages">
+      {% for message in messages %}
+      <div class="alert alert-danger" role="alert">
+          {{ message }}
       </div>
+      {% endfor %}
+  </ul>
+  {% endif %} -->
+  <div class="hil-div row m-0 align-items-center">
+    <div class="row align-items-center mr-5">
+      <div class="col">Welcome, <span id="user_name">{{ user_name }}</span></div>
     </div>
   </div>
   <div class="hil-div row m-0 align-items-center">
     <div class="col-sm-2 col-1"></div>  
     <div class="col-sm-4 col-5 h-100">
       <div class="row align-items-center form-select-ex-plan mr-5">
-        <label for="plan-select" class="h-10 w-100">Test Plan</label>
-        <select id="plan-select" class="h-10 w-100 custom-select">
-          <!-- <option value="">Select Test Plan</option> -->
+          <div class="col">
+              <label for="hex-file" class="h-10">Upload Firmware</label>
+          </div>
+          <div class="col">
+              <label for="file-selected" class="h-10">Selected Firmware</label>
+          </div>
+      </div>
+      <div class="row align-items-center form-select-ex-plan mr-5 mt-3">
+          <div class="col">
+              <input type="file" id="hex-file" name="hex_file" accept=".hex" class="form-control mb-2 d-none">
+              <button id="upload-hex" type="button" class="btn btn-primary btn-lg align-self-end px-4 py-2">Select File</button>
+          </div>
+          <div class="col">
+              <!-- <div class="h-10" id="file-selected">File uploaded here</div> -->
+              <!-- <input type="text" id="selected-file-name" readonly> -->
+              <div id="fileContents"></div>
+          </div>
+      </div>
+  </div>
+  
+    <!-- <div class="col-sm-4 col-5 h-100">
+      <div class="row align-items-left form-select-ex-plan mr-5">
+        <label for="gc-select" class="h-10 w-100">Stream / Baseline</label>
+        <select id="gc-select" class="h-10 w-100 custom-select">
+          <option value=""></option>
         </select>
+      </div>
+    </div> -->
+  </div>
+  <div class="hil-div row m-0 align-items-center">
+    <div class="col-sm-2 col-1"></div>  
+    <div class="col-sm-4 col-5 h-100">
+      <div class="row align-items-center form-select-ex-plan mr-5">
+        <label for="uploaded-file" class="h-10 w-100">Your hex file </label>
+        <div id="uploaded-file" class="w-100"></div>
       </div>
     </div>
     <div class="col-sm-4 col-5 h-100">
       <div class="row align-items-center form-select-ex-plan mr-5">
-        <label for="suite-select" class="h-10 w-100">Test Suite</label>
-        <select id="suite-select" class="h-10 w-100 custom-select " multiple="multiple">
-          <!-- <option value="">Select Test Suite</option> -->
+        <label for="time" class="h-10 w-100">Time counter</label>
+        <div class="w-100">Time remaining: <span id="time">00:00</span></div>
         </select>
       </div>
     </div>
@@ -88,18 +108,151 @@
       <div class="modal-body" id="confirm-modal-body">
         <p class="pt-5 pb-4" id="confirm-response-text"></p>
       </div>
-      <div class="modal-footer">
+      <!-- <div class="modal-footer">
         <button type="button" class="btn btn-primary btn-lg" id="confirmedButton">Save to database</button>
         <button type="button" class="btn btn-secondary btn-lg" data-dismiss="modal">Cancel</button>
-      </div>
+      </div> -->
     </div>
   </div>
 </div>
 
 
 <script>
-  $('#save-dtb-btn').on( "click", function() {
-      $('#confirm-modal').modal('show');
+  $(document).ready(function () {
+    let username = $('#user_name').text();
+    let remainingTime = localStorage.getItem(username);
+    // Event function to be called when the user navigate to another web page
+    window.onbeforeunload = function(event){
+                  var entries = performance.getEntriesByType("navigation");
+                  if(entries.length > 0)
+                  {
+                    var lastentry = entries[entries.length - 1]
+                    if(lastentry.type != "reload"){
+                      console.log("Reach remove")
+                      localStorage.removeItem(username)
+                    }
+                  }
+    };
+    // Function to start the timer
+    function startTimer(duration, display) {
+            var timer = duration, minutes, seconds;
+            setInterval(function () {
+                minutes = parseInt(timer / 60, 10);
+                seconds = parseInt(timer % 60, 10);
+
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                display.textContent = minutes + ":" + seconds;
+                localStorage.setItem(username,timer)
+
+                if(timer == 5){
+
+                }
+
+                if (--timer < 0) {
+                  // clearInterval(interval);
+                  window.location.href = "/home/";
+                  localStorage.removeItem(username)
+                }
+            }, 1000);
+        }
+
+        // Function to initiate the timer when the window loads
+        // window.onload = function () {
+            display = document.querySelector('#time');
+            if(remainingTime){
+              startTimer(remainingTime, display);
+            }
+            else{
+              var TimeCount = 60*15;
+              startTimer(TimeCount, display);
+            }
+        // };
+    $.ajax({
+      url: "/download",
+      type: 'GET',
+      data: {},
+      processData: false,
+      contentType: false,
+      headers: {
+          'X-CSRFToken': "{{csrf_token}}"
+        },
+      success: function (response){
+        if(response.files){ 
+          let filesHtml = '';
+          let listfile = []; 
+          response.files.forEach(function(file) {
+            if(file.file_name=="" && file.file_url==null){
+            filesHtml += ` 
+            <p> 
+               None
+            </p> 
+            `; 
+          }
+          else{
+            filesHtml += ` 
+            <p> 
+               ${file.file_name} <a href="/download/${file.file_url}/">Download</a>
+               <button class="select-file" data-file-name="${file.file_name}">Select</button>
+            </p> 
+            `; 
+          }
+          }); 
+          $('#uploaded-file').html(filesHtml);
+          // Add click event listener for Select buttons
+          $('.select-file').on('click', function () {
+          const fileName = $(this).data('file-name');
+          $('#fileContents').text(fileName);
+          }); 
+          }
+             else { 
+              $('#uploaded-file').html('<p>No files found</p>'); 
+            } 
+          },
+      error: function(){
+
+      }
+    })
+  });
+</script>
+
+<script>
+      // Trigger file input click when button is clicked
+      $('#upload-hex').on('click', function () {
+      $('#hex-file').click();
+    });
+
+    // Handle file input change event
+    $('#hex-file').on('change', function () {
+      var formData = new FormData();
+      formData.append('hex_file', this.files[0]);
+
+      $.ajax({
+        url: "/upload/", // Replace with your actual URL endpoint
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        headers: {
+          'X-CSRFToken': "{{csrf_token}}"
+        },
+        success: function (response) {
+          const fileName = response.filename
+          $('#fileContents').text(fileName);
+          // if (response.file_url) {
+          //   $('#uploaded-file').html(`
+          //     <p>File uploaded successfully: ${response.filename}</p>
+          //     <a href="${response.file_url}" download>Download ${response.filename}</a>
+          //   `);
+          // } else {
+          //   $('#uploaded-file').text('Failed to upload the file.');
+          // }
+        },
+        error: function () {
+          $('#uploaded-file').text('An error occurred during the upload.');
+        }
+      });
     });
 </script>
 

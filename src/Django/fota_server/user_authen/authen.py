@@ -10,14 +10,23 @@ def sql_authen_api(username,password):
     try:
         # connectionQuery = "DRIVER={{SQL Server}}; SERVER=192.168.1.7,1433; Database=FOTA; UID={}; PWD={};Trusted_Connection=no".format(username,password)
         # conn = pyodbc.connect(connectionQuery)
-        settings.DATABASES['default'].update(USER=username,PASSWORD=password)
-        try:
-            with connections['default'].cursor() as cursor:
-                # Attempt a simple query to check if the login works
-                cursor.execute("SELECT 1")  # Will raise OperationalError if login is invalid
-                print('Login successfully')
+        # settings.DATABASES['default'].update(USER=username,PASSWORD=password)
+        # try:
+        #     with connections['default'].cursor() as cursor:
+        #         # Attempt a simple query to check if the login works
+        #         cursor.execute("SELECT 1")  # Will raise OperationalError if login is invalid
+        #         print('Login successfully')
+        #     return True
+        # except (OperationalError, InterfaceError):
+        #     return False
+        ip_server = settings.IP_ADDRESS
+        connectionQuery = "DRIVER={{SQL Server}}; SERVER={},1433; Database=FOTA; UID={}; PWD={};Trusted_Connection=no".format(ip_server,username,password)
+        conn = pyodbc.connect(connectionQuery)
+        if conn != None:
+            print("Login successfully")
+            settings.DATABASES['default'].update(USER=username,PASSWORD=password)
             return True
-        except (OperationalError, InterfaceError):
+        else:
             return False
             
     except Error as e:

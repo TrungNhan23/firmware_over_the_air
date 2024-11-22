@@ -15,7 +15,7 @@
 from django.conf import settings
 from APIs.query_api import Project_Configuration_API
 
-# def get_active_alm_client_obj(username):
+# def get_active_sql_client_obj(username):
 
 #     username  = str(username)
 #     username = username.lower()
