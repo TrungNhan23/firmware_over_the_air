@@ -3,7 +3,7 @@
 const char *ssid = "Nhennn";
 const char *pass = "trungnhan0203";
 
-const char *url = "http://192.168.0.123:2400/uploads/led.hex";
+const char *url = "http://192.168.0.123:2400/uploads/testBlink.hex";
 
 HardwareSerial FlashPort(2);
 FlashSTM32 devKit(18, 14);
@@ -11,7 +11,7 @@ FlashSTM32 devKit(18, 14);
 void setup()
 {
     Serial.begin(115200);
-    FlashPort.begin(9600, SERIAL_8E1, 16, 17);
+    FlashPort.begin(115200, SERIAL_8E1, 16, 17);
     delay(500);
 
     devKit.setup();
@@ -43,7 +43,7 @@ void setup()
     if (devKit.DownloadFirmware(url))
     {
         Serial.println("Download hex file successfully!!!");
-        File firmwareFile = SPIFFS.open("/led.hex", "r");
+        File firmwareFile = SPIFFS.open("/testBlink.hex", "r");
         if (!firmwareFile)
         {
             Serial.println("Failed to open firmware file");
@@ -64,6 +64,7 @@ void setup()
         delay(5);
         devKit.exitBootMode();
         Serial.println("Firmware upload complete");
+
     }
 }
 void loop()

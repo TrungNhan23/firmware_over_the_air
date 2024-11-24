@@ -1,111 +1,91 @@
 #include "FlashSTM32.h"
 
-int bini = 0, rdtmp;
-
-uint8_t hexCharToByte(const char *hex)
+void FlashSTM32::sendAddress(uint16_t address, HardwareSerial &flashPort)
 {
-    uint8_t value = 0;
-    sscanf(hex, "%2hhx", &value);
-    return value;
+    Serial.println("attempting to send address. "); 
+    uint32_t addr = (uint32_t)(0x08000000) | (uint32_t)address;
+    uint8_t add[5];
+    add[0] = (uint8_t)((addr >> 24) & 0xff);
+    add[1] = (uint8_t)((addr >> 16) & 0xff);
+    add[2] = (uint8_t)((addr >> 8) & 0xff);
+    add[3] = (uint8_t)(addr & 0xff);
+    add[4] = (uint8_t)(add[0] ^ add[1] ^ add[2] ^ add[3]);
+
+    flashPort.write(add[0]);
+    flashPort.write(add[1]);
+    flashPort.write(add[2]);
+    flashPort.write(add[3]);
+    flashPort.write(add[4]);
 }
 
-int parseHexLine(const char *line, IntelHexFile &record)
+
+void FlashSTM32::sendData(IntelHexFile &intelHex, HardwareSerial &flashPort)
 {
-    if (line[0] != ':')
+    flashPort.write((uint8_t)(intelHex.byteCount - 1));
+    delay(5); 
+    flashPort.write(intelHex.data, 16);
+    delay(5); 
+    uint8_t checksum = (uint8_t)(intelHex.byteCount - 1);
+    for (int i = 0; i < 16; i++)
     {
-        return -1;
+        checksum ^= intelHex.data[i];
     }
-
-    // Parse byteCount
-    record.byteCount = hexCharToByte(&line[1]);
-
-    // Parse address (2 byte)
-    record.address = (hexCharToByte(&line[3]) << 8) | hexCharToByte(&line[5]);
-
-    // Parse recordType
-    record.recordType = hexCharToByte(&line[7]);
-
-    // Parse data
-    for (int i = 0; i < record.byteCount; i++)
+    flashPort.write(checksum);
+    Serial.print("checksum is: ");
+    Serial.println(checksum, HEX);
+    uint8_t byte = flashPort.read();
+    Serial.print("Received byte: 0x");
+    Serial.println(byte, HEX);
+    if (byte == ACK_MESSAGE)
     {
-        record.data[i] = hexCharToByte(&line[9 + i * 2]);
+        Serial.println("Write data to address successfully.");
     }
-
-    // Parse checksum
-    record.checksum = hexCharToByte(&line[9 + record.byteCount * 2]);
-
-    return 0;
 }
 
-int parseHexFile(File &file, IntelHexFile &record, FlashSTM32 &STM32, HardwareSerial &flashPort)
+void FlashSTM32::parseHexLine(String line, IntelHexFile &intelHex)
 {
-    if (!file)
+    line.trim();
+
+    if (line.length() < 11 || line[0] != ':')
     {
-        Serial.println("Failed to open file");
-        return -1;
+        Serial.println("Invalid HEX line!");
+        return;
     }
 
-    char line[100];
-    int countLine = 0;
-    while (file.available())
+    intelHex.byteCount = (uint8_t)strtol(line.substring(1, 3).c_str(), NULL, 16);
+    intelHex.address = (uint16_t)strtol(line.substring(3, 7).c_str(), NULL, 16);
+    intelHex.recordType = (uint8_t)strtol(line.substring(7, 9).c_str(), NULL, 16);
+    for (int i = 9, index = 0; i < 9 + intelHex.byteCount * 2; i += 2, index++)
     {
-        file.readBytesUntil('\n', line, sizeof(line));
-        IntelHexFile record;
-        Serial.println("Atempting to flash.");
-        if (parseHexLine(line, record) == 0)
+        intelHex.data[index] = (uint8_t)strtol(line.substring(i, i + 2).c_str(), NULL, 16);
+    }
+    intelHex.checksum = (uint8_t)strtol(line.substring(9 + intelHex.byteCount * 2, 9 + intelHex.byteCount * 2 + 2).c_str(), NULL, 16);   
+}
+
+void FlashSTM32::parseHexFile(File &firmwareFile, HardwareSerial &flashPort)
+{
+    String line = "";
+    IntelHexFile intelHex;
+    while (firmwareFile.available())
+    {
+        char c = firmwareFile.read();
+        if (c == '\n' || c == '\r')
         {
-            Serial.print("Flash line: ");
-            Serial.println(countLine);
-            countLine++;
+            if (line.length() > 0)
+            {
+                //Serial.println(line);
+                this->parseHexLine(line, intelHex);
+                this->sendCMD(WriteCMD, flashPort);
+                this->sendAddress(intelHex.address, flashPort);
+                this->sendData(intelHex, flashPort);
+                line = "";
+            }
         }
-        // Serial.println("Parsed successfully:");
-        // Serial.print("Byte count: ");
-        // Serial.println(record.byteCount);
-        // Serial.print("Address: 0x");
-        // Serial.println(record.address, HEX);
-        // Serial.print("Record type: ");
-        // Serial.println(record.recordType);
-        // Serial.print("Data: ");
-        // for (int i = 0; i < record.byteCount; i++)
-        // {
-        //     Serial.print(record.data[i], HEX);
-        //     Serial.print(" ");
-        // }
-        // Serial.println();
-        // Serial.print("Checksum: 0x");
-        // Serial.println(record.checksum, HEX);
+        else
+        {
+            line += c;
+        }
     }
-
-    file.close();
-    return -1;
-}
-
-String FindNameOfFile(String url)
-{
-    size_t lastSlashIndex = url.lastIndexOf('/');
-    return url.substring(lastSlashIndex + 1);
-}
-
-uint8_t Data2Checksum(const String &line)
-{
-    if (line[0] != ':')
-    {
-        Serial.println("HEX file line: Missing start code ':'");
-        return 0;
-    }
-
-    uint8_t checksum = 0;
-
-    for (size_t i = 1; i < line.length() - 2; i += 2)
-    {
-        String byteString = line.substring(i, i + 2);
-        uint8_t byte = (uint8_t)strtol(byteString.c_str(), nullptr, 16);
-        checksum += byte;
-    }
-
-    checksum = (~checksum + 1) & 0xFF; // calc the 2's complements
-
-    return checksum;
 }
 
 void FlashSTM32::sendCMD(uint8_t cmd, HardwareSerial &flashPort)
@@ -134,7 +114,7 @@ bool FlashSTM32::DownloadFirmware(String url)
 
     if (httpCode == HTTP_CODE_OK)
     {
-        File file = SPIFFS.open("/blink.hex", "w");
+        File file = SPIFFS.open("/testBlink.hex", "w");
         if (!file)
         {
             Serial.println("Failed to open file for writing");
@@ -208,41 +188,13 @@ void FlashSTM32::Erase(HardwareSerial &flashPort)
 
 void FlashSTM32::Flash(File &firmwareFile, HardwareSerial &flashPort)
 {
-    size_t fileSize = firmwareFile.size();
-    uint32_t bytesSent = 0;
-    int lastbuf = 0;
-    uint8_t binData[256];
-    IntelHexFile record;
-    if (fileSize == 0)
-    {
-        Serial.println("Firmware file is empty.");
-        return;
-    }
 
-    if (!firmwareFile)
+    this->Erase(flashPort);
+    if (!this->enterBootMode(flashPort))
     {
-        Serial.println("Failed to open firmware file.");
-        return;
+        Serial.println("Failed to entering the bootloader.");
     }
-    else
-    {
-        this->Erase(flashPort);
-        Serial.println("Flashing firmware...");
-        bini = firmwareFile.size() / 256;
-        lastbuf = firmwareFile.size() % 256;
-        for (int i = 0; i < bini; ++i)
-        {
-            firmwareFile.read(binData, 256);
-            this->sendCMD(WriteCMD, flashPort);
-        }
-    }
-
-    // while (firmwareFile.available())
-    // {
-    //     if (parseHexFile(firmwareFile, record, *this, flashPort) != 0)
-    //         Serial.println("Failed to flash firmware file.");
-    // }
-    // Serial.println("Flashing completed.");
+    this->parseHexFile(firmwareFile, flashPort);
 }
 
 FlashSTM32::~FlashSTM32()

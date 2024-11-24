@@ -2,9 +2,9 @@
 #include "SPIFFS.h"
 #include <WiFi.h>
 #include <HTTPClient.h>
-// #include "stm32ota.h"
 
 
+#define DATA_BUFFER 256
 
 #define ACK_MESSAGE 0x79
 #define NAK_MESSAGE 0x1F
@@ -27,14 +27,12 @@ struct IntelHexFile
     uint8_t checksum;
 };
 
-
 class FlashSTM32
 {
 private:
     uint8_t port;
     int NRST_PIN;
     int BOOT0_PIN;
-
 public:
     FlashSTM32(int rst_pin, int boot0_pin);
     void setup();
@@ -42,13 +40,14 @@ public:
     bool DownloadFirmware(String url);
     bool enterBootMode(HardwareSerial &flashPort);
     void exitBootMode();
-    void Flash(File &firmwareFile, HardwareSerial &stm32);
+    void Flash(File &firmwareFile, HardwareSerial &flashPort);
     void Erase(HardwareSerial &flashPort);
     ~FlashSTM32();
-};
 
-uint8_t hexCharToByte(const char *hex);
-int parseHexFile(File &file, IntelHexFile &record, FlashSTM32 &STM32, HardwareSerial &flashPort);
-int parseHexLine(const char *line, IntelHexFile &record); 
-String FindNameOfFile(String url);
-uint8_t Data2Checksum(const String &data);
+private:
+    void parseHexFile(File &firmwareFile, HardwareSerial &flashPort);
+    void parseHexLine(String line, IntelHexFile &intelHex);
+    String FindNameOfFile(String url);
+    void sendAddress(uint16_t address, HardwareSerial &flashPort);
+    void sendData(IntelHexFile &intelHex, HardwareSerial &flashPort);
+};
