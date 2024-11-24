@@ -126,7 +126,7 @@ bool FlashSTM32::DownloadFirmware(String url)
         Serial.println("Firmware downloaded and saved to SPIFFS");
         return true;
     }
-    else
+    else  
     {
         Serial.printf("Failed to download firmware, error: %d\n", httpCode);
         return false;
