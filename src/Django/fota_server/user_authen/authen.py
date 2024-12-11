@@ -19,8 +19,9 @@ def sql_authen_api(username,password):
         #     return True
         # except (OperationalError, InterfaceError):
         #     return False
-        ip_server = settings.IP_ADDRESS
-        connectionQuery = "DRIVER={{SQL Server}}; SERVER={},1433; Database=FOTA; UID={}; PWD={};Trusted_Connection=no".format(ip_server,username,password)
+        # ip_server = settings.IP_ADDRESS
+        ip_server = "localhost\\TEW_SQLEXPRESS"
+        connectionQuery = "DRIVER={{ODBC Driver 17 for SQL Server}}; SERVER={},1433; Database=FOTA; UID={}; PWD={};Trusted_Connection=no".format(ip_server,username,password)
         conn = pyodbc.connect(connectionQuery)
         if conn != None:
             print("Login successfully")

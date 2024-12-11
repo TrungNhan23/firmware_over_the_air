@@ -1,4 +1,4 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, StreamingHttpResponse
 from django.shortcuts import render,redirect,get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -20,7 +20,12 @@ from django.conf import settings
 from django.http import HttpResponse
 from .models import HexFile,UserID
 from django.views.generic import TemplateView
-
+import socket
+from PIL import Image
+from io import BytesIO
+import os
+import asyncio
+import time
 
 
 # Create your views here.
@@ -158,7 +163,65 @@ class pump_message(APIView):
             messages.warning(request,message_text)
         return JsonResponse({'files': ""})
 
+@method_decorator(login_required,name="dispatch")
+class stream_video(APIView):
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter('message', openapi.IN_QUERY, description="The message you want to pump", type=openapi.TYPE_STRING),
+            openapi.Parameter('type', openapi.IN_QUERY, description="The message type you want to pump", type=openapi.TYPE_STRING),
+        ],
+        operation_summary="Get execution plan view with parameters."
+    )
+    def get(self,request):
+        # ## getting the hostname by socket.gethostname() method
+        # hostname = socket.gethostname()
+        # ## getting the IP address using socket.gethostbyname() method
+        # # IP_ADDRESS = socket.gethostbyname(hostname)
+        # IP_ADDRESS = "192.168.1.7"
+        # esp32_url = "http://" + IP_ADDRESS +":81/stream"
+        # print("enter streaming:" + esp32_url)
+        # # Define a generator function to fetch and yield video frames
+        def get_image():
+            frame_path = r"C:\Project_UTE\DA2\src\ESP32-CAM\esp32_camera_webstream\images\image.jpg"
+            while True:
+                try:
+                    if os.path.exists(frame_path) and os.path.getsize(frame_path) > 5000:
+                        with open(frame_path, "rb") as f:
+                            image_bytes = f.read()
+                        image = Image.open(BytesIO(image_bytes))
+                        img_io = BytesIO()
+                        image.save(img_io, 'JPEG')
+                        img_io.seek(0)
+                        img_bytes = img_io.read()
+                        yield (b'--frame\r\n'
+                            b'Content-Type: image/jpeg\r\n\r\n' + img_bytes + b'\r\n')
+                    else:
+                        print("Frame file is not valid yet or does not exist!")
 
+                except Exception as e:
+                    print("encountered an exception: ")
+                    print(e)
+
+                    # with open("placeholder.jpg", "rb") as f:
+                    #     image_bytes = f.read()
+                    # image = Image.open(BytesIO(image_bytes))
+                    # img_io = BytesIO()
+                    # image.save(img_io, 'JPEG')
+                    # img_io.seek(0)
+                    # img_bytes = img_io.read()
+                    # yield (b'--frame\r\n'
+                    #     b'Content-Type: image/jpeg\r\n\r\n' + img_bytes + b'\r\n')
+                    # continue
+
+                # Return a StreamingHttpResponse
+                finally:
+                    time.sleep(0.1)
+                    # # Add a small delay to avoid rapid looping
+                    # await asyncio.sleep(0.1)
+        return StreamingHttpResponse(
+            get_image(),
+            content_type="multipart/x-mixed-replace; boundary=frame"
+        )
 
 def download_file(request,file_id):
     file = get_object_or_404(HexFile, id=file_id) 

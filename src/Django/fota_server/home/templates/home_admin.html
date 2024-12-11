@@ -1,75 +1,57 @@
 {% extends 'base.html'%}
 {% block page_content %}
 <div id="home-container">
-  <!-- <form method="post"></form>
-  {% csrf_token %}
-  {% if messages %}
-  <ul class="messages">
-      {% for message in messages %}
-      <div class="alert alert-danger" role="alert">
-          {{ message }}
-      </div>
-      {% endfor %}
-  </ul>
-  {% endif %} -->
+  <!-- Upload Hex File and File Selected -->
   <div class="hil-div row m-0 align-items-center">
-    <div class="row align-items-center mr-5">
-      <div class="col">Welcome, <span id="user_name">{{ user_name }}</span></div>
+    <div class="col-sm-2 col-1"></div>  
+    <!-- Upload File Selection -->
+    <div class="col-sm-4 col-5 h-100">
+        <div class="row align-items-center form-select-ex-plan mr-5">
+          <label for="hex-file" class="h-10 w-100">Upload File</label>
+          <input type="file" id="hex-file" name="hex_file" accept=".hex" class="form-control mb-2 d-none">
+            <button id="upload-hex" type="button" class="btn btn-primary btn-lg align-self-end px-4 py-2">Select File</button>
+        </div>
+    </div>
+    <!-- File Selected -->
+    <div class="col-sm-4 col-5 h-100">
+      <div class="row align-items-left form-select-ex-plan mr-5">
+        <label for="file-selected" class="h-10 w-100">Selected File</label>
+        <div id="file-selected" class="file-selected p-2 w-100"></div>
+      </div>
     </div>
   </div>
+  <!-- 5 latest hex files of user in db -->
   <div class="hil-div row m-0 align-items-center">
     <div class="col-sm-2 col-1"></div>  
-    <div class="col-sm-4 col-5 h-100">
-      <div class="row align-items-center form-select-ex-plan mr-5">
-          <div class="col">
-              <label for="hex-file" class="h-10">Upload Firmware</label>
-          </div>
-          <div class="col">
-              <label for="file-selected" class="h-10">Selected Firmware</label>
-          </div>
-      </div>
-      <div class="row align-items-center form-select-ex-plan mr-5 mt-3">
-          <div class="col">
-              <input type="file" id="hex-file" name="hex_file" accept=".hex" class="form-control mb-2 d-none">
-              <button id="upload-hex" type="button" class="btn btn-primary btn-lg align-self-end px-4 py-2">Select File</button>
-          </div>
-          <div class="col">
-              <!-- <div class="h-10" id="file-selected">File uploaded here</div> -->
-              <!-- <input type="text" id="selected-file-name" readonly> -->
-              <div id="fileContents"></div>
-          </div>
-      </div>
-  </div>
-  
-    <!-- <div class="col-sm-4 col-5 h-100">
-      <div class="row align-items-left form-select-ex-plan mr-5">
-        <label for="gc-select" class="h-10 w-100">Stream / Baseline</label>
-        <select id="gc-select" class="h-10 w-100 custom-select">
-          <option value=""></option>
-        </select>
-      </div>
-    </div> -->
-  </div>
-  <div class="hil-div row m-0 align-items-center">
-    <div class="col-sm-2 col-1"></div>  
-    <div class="col-sm-4 col-5 h-100">
-      <div class="row align-items-center form-select-ex-plan mr-5">
-        <label for="uploaded-file" class="h-10 w-100">Your hex file </label>
+    <div class="col-sm-4   col-5 h-100">
+      <div class="row align-items-center form-select-ex-plan mr-5 h-100" style="height:200px;">
+        <label for="uploaded-file" class="h-10 w-100">Your hex file</label>
         <div id="uploaded-file" class="w-100"></div>
       </div>
     </div>
     <div class="col-sm-4 col-5 h-100">
-      <div class="row align-items-center form-select-ex-plan mr-5">
-        <label for="time" class="h-10 w-100">Time counter</label>
-        <div class="w-100">Time remaining: <span id="time">00:00</span></div>
-        </select>
+      <div class="row align-items-center form-select-ex-plan mr-5 h-100">
+        <label for="send-hex" class="h-10 w-100">Send Firmware</label>
+        <button id="send-hex" type="button" class="btn btn-primary btn-lg align-self-end px-4 py-2">Send Hex</button>
       </div>
     </div>
   </div>
-  <!-- <div class="d-flex justify-content-center align-items-center p-5">
-    <button id = "save-dtb-btn" type="button" class="btn btn-primary btn-lg align-self-end px-5 py-2">Save to database</button>
-    <span id="tooltiptext">All field need to be selected</span>
-  </div> -->
+  <!-- Streamming Video and timer counter -->
+  <div class="hil-div row m-0 align-items-center">
+    <div class="col-sm-2 col-1"></div>  
+    <div class="col-sm-4 col-5 h-100">
+      <div class="row align-items-center form-select-ex-plan mr-5">
+        <label for="uploaded-file" class="h-10 w-100">Video Streamming </label>
+        <img id="video_stream" src="/stream/" alt="ESP32-CAM Stream" style="width: 100%; max-width: 640px; height: auto;">
+      </div>
+    </div>
+    <div class="col-sm-4 col-5 h-100">
+      <div class="row align-items-center form-select-ex-plan mr-5 h-100">
+        <label for="time" class="h-10 w-100">Time counter</label>
+        <div class="w-100">Time remaining: <span id="time">00:00</span></div>
+      </div>
+    </div>
+  </div>
 </div>
 <div class="modal fade" id="noti-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
@@ -120,19 +102,27 @@
 <script>
   $(document).ready(function () {
     let username = $('#user_name').text();
-    let remainingTime = localStorage.getItem(username);
+    let remainingTime = sessionStorage.getItem(username);
     // Event function to be called when the user navigate to another web page
-    window.onbeforeunload = function(event){
-                  var entries = performance.getEntriesByType("navigation");
-                  if(entries.length > 0)
-                  {
-                    var lastentry = entries[entries.length - 1]
-                    if(lastentry.type != "reload"){
-                      console.log("Reach remove")
-                      localStorage.removeItem(username)
-                    }
-                  }
-    };
+    // window.onbeforeunload = function(){
+    //   // var navigationType = performance.navigation.type;
+    //   //   if (navigationType != performance.navigation.TYPE_RELOAD) {
+    //   //       console.log("Reach remove");
+    //   //       consloe.log(username)
+    //   //       localStorage.removeItem(username);
+    //   //   }
+    //   // localStorage.removeItem(username)
+    //               // var entries = performance.getEntriesByType("navigation");
+    //               // if(entries.length > 0)
+    //               // {
+    //               //   var lastentry = entries[entries.length - 1]
+    //               //   if(lastentry.type != "reload"){
+    //               //     console.log("Reach remove")
+    //               //     localStorage.removeItem(username)
+    //               //   }
+    //               // }
+    //   localStorage.removeItem(username)
+    // };
     // Function to start the timer
     function startTimer(duration, display) {
             var timer = duration, minutes, seconds;
@@ -153,7 +143,7 @@
                 if (--timer < 0) {
                   // clearInterval(interval);
                   window.location.href = "/home/";
-                  localStorage.removeItem(username)
+                  sessionStorage.removeItem(username)
                 }
             }, 1000);
         }
@@ -165,7 +155,7 @@
               startTimer(remainingTime, display);
             }
             else{
-              var TimeCount = 60*15;
+              var TimeCount = 60*60;
               startTimer(TimeCount, display);
             }
         // };
@@ -199,11 +189,11 @@
             `; 
           }
           }); 
-          $('#uploaded-file').html(filesHtml);
+          $('#uploaded-file').html(`<div class="w-100">${filesHtml}</div>`);
           // Add click event listener for Select buttons
           $('.select-file').on('click', function () {
           const fileName = $(this).data('file-name');
-          $('#fileContents').text(fileName);
+          $('#file-selected').text(fileName);
           }); 
           }
              else { 
