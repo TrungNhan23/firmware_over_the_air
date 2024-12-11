@@ -101,7 +101,7 @@ DATABASES = {
         'NAME': 'FOTA',
         'USER': '',
         'PASSWORD': '',
-        'HOST': IP_ADDRESS,
+        'HOST': "localhost\\TEW_SQLEXPRESS",
         'PORT': '1433',
         'OPTIONS': {
             'driver': 'ODBC Driver 17 for SQL Server',  # Ensure you have this ODBC driver installed,ODBC Driver 17 for SQL Server
