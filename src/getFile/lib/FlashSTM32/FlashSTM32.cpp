@@ -2,7 +2,7 @@
 
 void FlashSTM32::sendAddress(uint16_t address, HardwareSerial &flashPort)
 {
-    Serial.println("attempting to send address. "); 
+    Serial.println("attempting to send address. ");
     uint32_t addr = (uint32_t)(0x08000000) | (uint32_t)address;
     uint8_t add[5];
     add[0] = (uint8_t)((addr >> 24) & 0xff);
@@ -18,13 +18,12 @@ void FlashSTM32::sendAddress(uint16_t address, HardwareSerial &flashPort)
     flashPort.write(add[4]);
 }
 
-
 void FlashSTM32::sendData(IntelHexFile &intelHex, HardwareSerial &flashPort)
 {
     flashPort.write((uint8_t)(intelHex.byteCount - 1));
-    delay(5); 
+    delay(5);
     flashPort.write(intelHex.data, 16);
-    delay(5); 
+    delay(5);
     uint8_t checksum = (uint8_t)(intelHex.byteCount - 1);
     for (int i = 0; i < 16; i++)
     {
@@ -59,7 +58,7 @@ void FlashSTM32::parseHexLine(String line, IntelHexFile &intelHex)
     {
         intelHex.data[index] = (uint8_t)strtol(line.substring(i, i + 2).c_str(), NULL, 16);
     }
-    intelHex.checksum = (uint8_t)strtol(line.substring(9 + intelHex.byteCount * 2, 9 + intelHex.byteCount * 2 + 2).c_str(), NULL, 16);   
+    intelHex.checksum = (uint8_t)strtol(line.substring(9 + intelHex.byteCount * 2, 9 + intelHex.byteCount * 2 + 2).c_str(), NULL, 16);
 }
 
 void FlashSTM32::parseHexFile(File &firmwareFile, HardwareSerial &flashPort)
@@ -73,7 +72,6 @@ void FlashSTM32::parseHexFile(File &firmwareFile, HardwareSerial &flashPort)
         {
             if (line.length() > 0)
             {
-                //Serial.println(line);
                 this->parseHexLine(line, intelHex);
                 this->sendCMD(WriteCMD, flashPort);
                 this->sendAddress(intelHex.address, flashPort);
@@ -106,15 +104,15 @@ void FlashSTM32::setup()
     pinMode(NRST_PIN, OUTPUT);
 }
 
-bool FlashSTM32::DownloadFirmware(String url)
+bool FlashSTM32::DownloadFirmware(URL url)
 {
     HTTPClient http;
-    http.begin(url);
+    http.begin(url.url + url.fileName);
     int httpCode = http.GET();
 
     if (httpCode == HTTP_CODE_OK)
     {
-        File file = SPIFFS.open("/testBlink.hex", "w");
+        File file = SPIFFS.open(("/" + url.fileName).c_str(), "w");
         if (!file)
         {
             Serial.println("Failed to open file for writing");
@@ -126,7 +124,7 @@ bool FlashSTM32::DownloadFirmware(String url)
         Serial.println("Firmware downloaded and saved to SPIFFS");
         return true;
     }
-    else  
+    else
     {
         Serial.printf("Failed to download firmware, error: %d\n", httpCode);
         return false;
@@ -137,16 +135,16 @@ bool FlashSTM32::enterBootMode(HardwareSerial &flashPort)
 {
 
     digitalWrite(this->BOOT0_PIN, 1);
-    delay(100);
+    delay(50);
     digitalWrite(this->NRST_PIN, 0);
-    delay(100);
+    delay(50);
     digitalWrite(this->NRST_PIN, 1);
 
-    delay(100);
+    delay(50);
 
     flashPort.write((uint8_t)0x7F);
 
-    delay(500);
+    delay(50);
     Serial.println("Attempting to enter bootloader mode...");
     uint8_t byte = flashPort.read();
     Serial.print("Received byte: 0x");
@@ -165,11 +163,11 @@ void FlashSTM32::exitBootMode()
 {
     Serial.println("Exiting bootloader mode...");
     digitalWrite(this->BOOT0_PIN, 0);
-    delay(100);
+    delay(50);
     digitalWrite(this->NRST_PIN, 0);
-    delay(100);
+    delay(50);
     digitalWrite(this->NRST_PIN, 1);
-    delay(100);
+    delay(50);
     Serial.println("Exit bootloader mode done");
 }
 
@@ -177,7 +175,6 @@ void FlashSTM32::Erase(HardwareSerial &flashPort)
 {
     Serial.println("Attempting to Erase code...");
     this->sendCMD(EraseCMD, flashPort);
-
     uint8_t byte = flashPort.read();
     Serial.print("Received byte: 0x");
     Serial.println(byte, HEX);

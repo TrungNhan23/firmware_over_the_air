@@ -3,9 +3,8 @@
 const char *ssid = "Nhennn";
 const char *pass = "trungnhan0203";
 
-const char *url = "http://192.168.0.123:2400/uploads/testBlink.hex";
-
 HardwareSerial FlashPort(2);
+// HardwareSerial FlashPort(1); //if esp32-cam please uncomment this one
 FlashSTM32 devKit(18, 14);
 
 void setup()
@@ -40,10 +39,12 @@ void setup()
         Serial.println("Successful to mount file system");
     }
 
+    url.fileName = "seg.hex"; 
+
     if (devKit.DownloadFirmware(url))
     {
         Serial.println("Download hex file successfully!!!");
-        File firmwareFile = SPIFFS.open("/testBlink.hex", "r");
+        File firmwareFile = SPIFFS.open(("/" + url.fileName).c_str(), "r");
         if (!firmwareFile)
         {
             Serial.println("Failed to open firmware file");
@@ -64,7 +65,6 @@ void setup()
         delay(5);
         devKit.exitBootMode();
         Serial.println("Firmware upload complete");
-
     }
 }
 void loop()
