@@ -10,5 +10,6 @@ urlpatterns = [
     path('hw_select/',views.select_hardware.as_view(), name='select_hardware'),
     path('fota_page/',views.fota_page.as_view(), name='fota_page'),
     path('messages/',views.pump_message.as_view(), name='pump_message'),
-    path('stream/',views.stream_video.as_view(), name='stream_view'),
+    path('data', views.upload_number, name='upload_number'), 
+    # path('stream/',views.stream_video.as_view(), name='stream_view'),
 ]
