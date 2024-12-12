@@ -28,7 +28,8 @@ struct IntelHexFile
 };
 
 struct URL{
-    String url = "http://192.168.1.103:2400/uploads/"; 
+    String url = "http://192.168.0.116:8000/download/"; 
+    String fileID; 
     String fileName;  
 }; 
 
@@ -42,7 +43,7 @@ public:
     FlashSTM32(int rst_pin, int boot0_pin);
     void setup();
     void sendCMD(uint8_t cmd, HardwareSerial &flashPort);
-    bool DownloadFirmware(URL url);
+    bool DownloadFirmware(URL &url);
     bool enterBootMode(HardwareSerial &flashPort);
     void exitBootMode();
     void Flash(File &firmwareFile, HardwareSerial &flashPort);
@@ -51,9 +52,7 @@ public:
 private:
     void parseHexFile(File &firmwareFile, HardwareSerial &flashPort);
     void parseHexLine(String line, IntelHexFile &intelHex);
-    //String FindNameOfFile(String url);
     void sendAddress(uint16_t address, HardwareSerial &flashPort);
     void sendData(IntelHexFile &intelHex, HardwareSerial &flashPort);
+    void generateFileName(URL url); 
 };
-
-extern URL url; 

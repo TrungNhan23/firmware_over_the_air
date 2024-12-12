@@ -3,14 +3,15 @@
 const char *ssid = "Nhennn";
 const char *pass = "trungnhan0203";
 
-HardwareSerial FlashPort(2);
-// HardwareSerial FlashPort(1); //if esp32-cam please uncomment this one
+// HardwareSerial FlashPort(2);
+HardwareSerial FlashPort(1); //if esp32-cam please uncomment this one
 FlashSTM32 devKit(18, 14);
 
 void setup()
 {
+    URL url; 
     Serial.begin(115200);
-    FlashPort.begin(115200, SERIAL_8E1, 16, 17);
+    FlashPort.begin(115200, SERIAL_8E1, 14, 15);
     delay(500);
 
     devKit.setup();
@@ -38,8 +39,8 @@ void setup()
     {
         Serial.println("Successful to mount file system");
     }
-
-    url.fileName = "seg.hex"; 
+    
+    url.fileID = "2"; 
 
     if (devKit.DownloadFirmware(url))
     {

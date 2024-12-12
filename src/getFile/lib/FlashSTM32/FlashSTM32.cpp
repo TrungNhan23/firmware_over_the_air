@@ -1,5 +1,9 @@
 #include "FlashSTM32.h"
 
+void FlashSTM32::generateFileName(URL url){
+    url.fileName = "downloaded_file" + url.fileID + ".hex"; 
+}
+
 void FlashSTM32::sendAddress(uint16_t address, HardwareSerial &flashPort)
 {
     Serial.println("attempting to send address. ");
@@ -104,12 +108,12 @@ void FlashSTM32::setup()
     pinMode(NRST_PIN, OUTPUT);
 }
 
-bool FlashSTM32::DownloadFirmware(URL url)
+bool FlashSTM32::DownloadFirmware(URL &url)
 {
     HTTPClient http;
-    http.begin(url.url + url.fileName);
+    http.begin(url.url + url.fileID + "/");
     int httpCode = http.GET();
-
+    this->generateFileName(url);
     if (httpCode == HTTP_CODE_OK)
     {
         File file = SPIFFS.open(("/" + url.fileName).c_str(), "w");
