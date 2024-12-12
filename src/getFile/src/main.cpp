@@ -5,11 +5,11 @@ const char *pass = "trungnhan0203";
 
 // HardwareSerial FlashPort(2);
 HardwareSerial FlashPort(1); //if esp32-cam please uncomment this one
-FlashSTM32 devKit(18, 14);
+FlashSTM32 devKit(13, 12);
 
+URL url; 
 void setup()
 {
-    URL url; 
     Serial.begin(115200);
     FlashPort.begin(115200, SERIAL_8E1, 14, 15);
     delay(500);
@@ -40,7 +40,7 @@ void setup()
         Serial.println("Successful to mount file system");
     }
     
-    url.fileID = "2"; 
+    url.fileID = "4"; 
 
     if (devKit.DownloadFirmware(url))
     {
@@ -70,6 +70,7 @@ void setup()
 }
 void loop()
 {
+    
 }
 
 
