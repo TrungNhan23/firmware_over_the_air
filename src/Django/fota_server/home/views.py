@@ -26,7 +26,8 @@ from io import BytesIO
 import os
 import asyncio
 import time
-
+import websockets
+import hashlib
 
 # Create your views here.
 
@@ -172,56 +173,107 @@ class stream_video(APIView):
         ],
         operation_summary="Get execution plan view with parameters."
     )
+    def calculate_image_hash(self,image_bytes):
+        """Calculate a hash of the image bytes using SHA256."""
+        return hashlib.sha256(image_bytes).hexdigest()
+
     def get(self,request):
-        # ## getting the hostname by socket.gethostname() method
-        # hostname = socket.gethostname()
-        # ## getting the IP address using socket.gethostbyname() method
-        # # IP_ADDRESS = socket.gethostbyname(hostname)
-        # IP_ADDRESS = "192.168.1.7"
-        # esp32_url = "http://" + IP_ADDRESS +":81/stream"
-        # print("enter streaming:" + esp32_url)
-        # # Define a generator function to fetch and yield video frames
         def get_image():
             frame_path = r"C:\Project_UTE\DA2\src\ESP32-CAM\esp32_camera_webstream\images\image.jpg"
+            frame_close_path = r"C:\Project_UTE\DA2\src\ESP32-CAM\esp32_camera_webstream\python\placeholder.jpg"
+            previous_hash = None
             while True:
                 try:
-                    if os.path.exists(frame_path) and os.path.getsize(frame_path) > 5000:
+                    if os.path.exists(frame_path) and os.path.getsize(frame_path) > 5000 and os.path.exists(frame_close_path):
                         with open(frame_path, "rb") as f:
                             image_bytes = f.read()
-                        image = Image.open(BytesIO(image_bytes))
-                        img_io = BytesIO()
-                        image.save(img_io, 'JPEG')
-                        img_io.seek(0)
-                        img_bytes = img_io.read()
-                        yield (b'--frame\r\n'
-                            b'Content-Type: image/jpeg\r\n\r\n' + img_bytes + b'\r\n')
+                        
+                        # Validate the image
+                        try:
+                            image = Image.open(BytesIO(image_bytes))
+                            image.verify()  # Check if it is a valid image
+                            image = Image.open(BytesIO(image_bytes))  # Reopen to load after verify
+                        except Exception as e:
+                            print(f"Invalid image data: {e}")
+                            continue  # Skip the invalid frame
+
+                        current_hash = self.calculate_image_hash(image_bytes) #Get the hash of the current frame
+                        # print(f"Current hash:{current_hash} and {previous_hash}")
+                        if current_hash != previous_hash: #Check if the frame has been changed -> Display to the web
+                            previous_hash = current_hash
+
+                            # Convert to bytes and yield
+                            img_io = BytesIO()
+                            image.save(img_io, 'JPEG')
+                            img_io.seek(0)
+                            img_bytes = img_io.read()
+                            yield (b'--frame\r\n'
+                                b'Content-Type: image/jpeg\r\n\r\n' + img_bytes + b'\r\n')
+                        else:
+                            with open(frame_close_path, "rb") as f:
+                                image_bytes = f.read()
+                                 # Validate the image
+                                try:
+                                    image = Image.open(BytesIO(image_bytes))
+                                    image.verify()  # Check if it is a valid image
+                                    image = Image.open(BytesIO(image_bytes))  # Reopen to load after verify
+                                except Exception as e:
+                                    print(f"Invalid image data: {e}")
+                                    continue  # Skip the invalid frame
+                                img_io = BytesIO()
+                                image.save(img_io, 'JPEG')
+                                img_io.seek(0)
+                                img_bytes = img_io.read()
+                                yield (b'--frame\r\n'
+                                    b'Content-Type: image/jpeg\r\n\r\n' + img_bytes + b'\r\n')
                     else:
                         print("Frame file is not valid yet or does not exist!")
 
                 except Exception as e:
                     print("encountered an exception: ")
                     print(e)
-
-                    # with open("placeholder.jpg", "rb") as f:
-                    #     image_bytes = f.read()
-                    # image = Image.open(BytesIO(image_bytes))
-                    # img_io = BytesIO()
-                    # image.save(img_io, 'JPEG')
-                    # img_io.seek(0)
-                    # img_bytes = img_io.read()
-                    # yield (b'--frame\r\n'
-                    #     b'Content-Type: image/jpeg\r\n\r\n' + img_bytes + b'\r\n')
-                    # continue
-
-                # Return a StreamingHttpResponse
                 finally:
-                    time.sleep(0.1)
-                    # # Add a small delay to avoid rapid looping
-                    # await asyncio.sleep(0.1)
+                    # Add a small delay to avoid rapid looping
+                    time.sleep(0.4)
+
         return StreamingHttpResponse(
             get_image(),
             content_type="multipart/x-mixed-replace; boundary=frame"
         )
+
+@method_decorator(login_required,name="dispatch")
+class toggle_camera(APIView):
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter('action', openapi.IN_QUERY, description="The action (START/STOP) to the esp32-cam", type=openapi.TYPE_STRING),
+        ],
+        operation_summary="Get execution plan view with parameters."
+    )
+    def post(self,request):
+        rawdata = request.data.dict()
+        action = rawdata["action"]
+        try:
+            print(f"Action is:{action}")
+            asyncio.run(self.send_message_to_websocket(action))
+            return JsonResponse({"success":True,"message":f"Camera {action} sent!"})
+        except Exception as e:
+            return JsonResponse({"success":False,"message":f"Error:{e}"})
+        
+    
+    async def send_message_to_websocket(self,message):
+        ## getting the hostname by socket.gethostname() method
+        hostname = socket.gethostname()
+        ## getting the IP address using socket.gethostbyname() method
+        ip_address = socket.gethostbyname(hostname)
+        websocket_url = f"ws://{ip_address}:3001" #replace websocket url
+        try:
+            async with websockets.connect(websocket_url) as websocket:
+                await websocket.send(message)
+                return True
+        except Exception as e:
+            print(f"Failed to send message to websocket:{e}")
+            return False
+            
 
 def download_file(request,file_id):
     file = get_object_or_404(HexFile, id=file_id) 

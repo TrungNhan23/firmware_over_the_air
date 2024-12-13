@@ -1,4 +1,4 @@
-  #include "esp_camera.h"
+#include "esp_camera.h"
 #include <WiFi.h>
 #include <ArduinoWebsockets.h>
 #include "esp_timer.h"
@@ -32,7 +32,7 @@
 const char* ssid     = "NNT:vv"; // CHANGE HERE
 const char* password = "A2042003"; // CHANGE HERE
 
-const char* websockets_server_host = "192.168.129.47"; //CHANGE HERE
+const char* websockets_server_host = "192.168.129.47"; //CHANGE HERE YOUR COM
 const uint16_t websockets_server_port = 3001; // OPTIONAL CHANGE
 
 camera_fb_t * fb = NULL;
@@ -43,9 +43,33 @@ uint8_t state = 0;
 using namespace websockets;
 WebsocketsClient client;
 
+bool stream_enabled = false;
+bool stream_disabled = true;
+bool onetime_called = false;
+
 void onMessageCallback(WebsocketsMessage message) {
   Serial.print("Got Message: ");
   Serial.println(message.data());
+  if(message.isText())
+  {
+    String command = message.data();
+    Serial.println("Receive command:"+command);
+    if(command=="START"){
+      stream_enabled = true;
+      stream_disabled = false;
+      Serial.println("Streaming enabled");
+    }
+    else if(command=="STOP"){
+      stream_enabled = false;
+      stream_disabled = true;
+      Serial.println("Streaming disabled");
+    }
+  }
+}
+
+esp_err_t deinit_camera(){
+  esp_camera_deinit();
+  return ESP_OK;
 }
 
 esp_err_t init_camera() {
@@ -113,7 +137,7 @@ esp_err_t init_wifi() {
   }
 
   Serial.println("WS OK");
-  client.send("hello from ESP32 camera stream!");
+  client.send("ESP32-CAM-" + WiFi.localIP().toString());
   return ESP_OK;
 };
 
@@ -130,17 +154,32 @@ void setup() {
 
 void loop() {
   if (client.available()) {
-    camera_fb_t *fb = esp_camera_fb_get();
-    if (!fb) {
-      Serial.println("img capture failed");
-      esp_camera_fb_return(fb);
-      ESP.restart();
+    if(stream_enabled and !stream_disabled){
+          if(onetime_called == false){
+            init_camera();
+            Serial.println("Init camera!");
+            onetime_called = true;
+          }
+          camera_fb_t *fb = esp_camera_fb_get();
+          if (!fb) {
+            Serial.println("img capture failed");
+            esp_camera_fb_return(fb);
+            ESP.restart();
+          }
+          client.sendBinary((const char*) fb->buf, fb->len);
+          Serial.println("image sent");
+          Serial.println("-----------------------------------");
+          esp_camera_fb_return(fb);
+          delay(100);
     }
-    client.sendBinary((const char*) fb->buf, fb->len);
-    Serial.println("image sent");
-    Serial.println("-----------------------------------");
-    esp_camera_fb_return(fb);
-    delay(100);
+    else if(!stream_enabled and stream_disabled){
+      deinit_camera();
+      Serial.println("Deinit Camera!");
+      stream_disabled = false;
+      onetime_called = false;
+      // Serial.println("Deinit camera...");
+    }
+
     client.poll();
   }
 }

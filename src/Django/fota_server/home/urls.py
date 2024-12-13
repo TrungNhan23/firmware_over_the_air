@@ -11,4 +11,5 @@ urlpatterns = [
     path('fota_page/',views.fota_page.as_view(), name='fota_page'),
     path('messages/',views.pump_message.as_view(), name='pump_message'),
     path('stream/',views.stream_video.as_view(), name='stream_view'),
+    path('toggle_cam/',views.toggle_camera.as_view(), name='toggle_camera'),
 ]

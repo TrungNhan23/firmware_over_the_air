@@ -41,7 +41,7 @@
     <div class="col-sm-2 col-1"></div>  
     <div class="col-sm-4 col-5 h-100">
       <div class="row align-items-center form-select-ex-plan mr-5">
-        <label for="uploaded-file" class="h-10 w-100">Video Streamming </label>
+        <label for="uploaded-file" class="h-10 w-100">Video Streamming <span> <button id="start-stop-stream" type="button" class="btn btn-primary btn-lg align-self-end px-4 py-2">Start</button> </span> </label>
         <img id="video_stream" src="/stream/" alt="ESP32-CAM Stream" style="width: 100%; max-width: 640px; height: auto;">
       </div>
     </div>
@@ -244,6 +244,35 @@
         }
       });
     });
+    $('#start-stop-stream').on('click',function(){
+      if($("#start-stop-stream").text() == "Stop"){
+        $("#start-stop-stream").text("Start")
+        action = "STOP"
+      }
+      else{
+        $("#start-stop-stream").text("Stop");
+        action = "START"
+      }
+        let command = {"action":action}
+
+        $.ajax({
+        url: '/toggle_cam/',
+        type: 'post',
+        async: true,
+        cache: false,
+        headers: {
+        'X-CSRFToken': "{{csrf_token}}"
+        },
+        data: command,
+        dataType : 'json',
+        success: function(data) {
+          
+        },
+        error: function(error) {
+          
+        }
+      });
+    })
 </script>
 
 <!-- <script>
