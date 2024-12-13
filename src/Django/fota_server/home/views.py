@@ -242,22 +242,32 @@ def upload_hex(request):
         return render(request, "upload.html", {"file_url": file_url, "filename": hex_file.name})
     return render(request, "upload.html")
 
-def upload_number(request):
+
+#add here 
+data_store = {"value": None}
+@csrf_exempt
+def set_data(request):
+    """API để đặt dữ liệu"""
+    global data_store
     if request.method == 'POST':
         try:
-            # Lấy dữ liệu từ request (dưới dạng JSON)
-            data = json.loads(request.body)
-            number = data.get('number')
+            body = json.loads(request.body)
+            data_store["value"] = body.get("value")
+            return JsonResponse({"status": "success", "message": "Data set successfully"})
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": str(e)})
+    return JsonResponse({"status": "error", "message": "Invalid request method"})
 
-            if number is not None:
-                # Xử lý số hoặc lưu vào cơ sở dữ liệu
-                print(f"Received number: {number}")
+def get_data(request):
+    """API để ESP32 lấy dữ liệu"""
+    global data_store
+    return JsonResponse(data_store)
 
-                return JsonResponse({'status': 'success', 'message': f'Number {number} uploaded successfully'})
-            else:
-                return JsonResponse({'status': 'error', 'message': 'No number provided'}, status=400)
-
-        except json.JSONDecodeError:
-            return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
-
-    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)
+@csrf_exempt
+def clear_data(request):
+    """API để ESP32 xóa dữ liệu sau khi lấy"""
+    global data_store
+    if request.method == 'POST':
+        data_store["value"] = None
+        return JsonResponse({"status": "success", "message": "Data cleared successfully"})
+    return JsonResponse({"status": "error", "message": "Invalid request method"})

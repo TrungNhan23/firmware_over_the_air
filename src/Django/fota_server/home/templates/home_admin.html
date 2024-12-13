@@ -3,14 +3,15 @@
 <div id="home-container">
   <!-- Upload Hex File and File Selected -->
   <div class="hil-div row m-0 align-items-center">
-    <div class="col-sm-2 col-1"></div>  
+    <div class="col-sm-2 col-1"></div>
     <!-- Upload File Selection -->
     <div class="col-sm-4 col-5 h-100">
-        <div class="row align-items-center form-select-ex-plan mr-5">
-          <label for="hex-file" class="h-10 w-100">Upload File</label>
-          <input type="file" id="hex-file" name="hex_file" accept=".hex" class="form-control mb-2 d-none">
-            <button id="upload-hex" type="button" class="btn btn-primary btn-lg align-self-end px-4 py-2">Select File</button>
-        </div>
+      <div class="row align-items-center form-select-ex-plan mr-5">
+        <label for="hex-file" class="h-10 w-100">Upload File</label>
+        <input type="file" id="hex-file" name="hex_file" accept=".hex" class="form-control mb-2 d-none">
+        <button id="upload-hex" type="button" class="btn btn-primary btn-lg align-self-end px-4 py-2">Select
+          File</button>
+      </div>
     </div>
     <!-- File Selected -->
     <div class="col-sm-4 col-5 h-100">
@@ -22,7 +23,7 @@
   </div>
   <!-- 5 latest hex files of user in db -->
   <div class="hil-div row m-0 align-items-center">
-    <div class="col-sm-2 col-1"></div>  
+    <div class="col-sm-2 col-1"></div>
     <div class="col-sm-4   col-5 h-100">
       <div class="row align-items-center form-select-ex-plan mr-5 h-100" style="height:200px;">
         <label for="uploaded-file" class="h-10 w-100">Your hex file</label>
@@ -32,17 +33,19 @@
     <div class="col-sm-4 col-5 h-100">
       <div class="row align-items-center form-select-ex-plan mr-5 h-100">
         <label for="send-hex" class="h-10 w-100">Send Firmware</label>
-        <button id="send-hex" type="button" class="btn btn-primary btn-lg align-self-end px-4 py-2">Upload Hex File</button>
+        <button id="send-hex" type="button" class="btn btn-primary btn-lg align-self-end px-4 py-2">Upload Hex
+          File</button>
       </div>
     </div>
   </div>
   <!-- Streamming Video and timer counter -->
   <div class="hil-div row m-0 align-items-center">
-    <div class="col-sm-2 col-1"></div>  
+    <div class="col-sm-2 col-1"></div>
     <div class="col-sm-4 col-5 h-100">
       <div class="row align-items-center form-select-ex-plan mr-5">
         <label for="uploaded-file" class="h-10 w-100">Video Streamming </label>
-        <img id="video_stream" src="/stream/" alt="ESP32-CAM Stream" style="width: 100%; max-width: 640px; height: auto;">
+        <img id="video_stream" src="/stream/" alt="ESP32-CAM Stream"
+          style="width: 100%; max-width: 640px; height: auto;">
       </div>
     </div>
     <div class="col-sm-4 col-5 h-100">
@@ -53,7 +56,8 @@
     </div>
   </div>
 </div>
-<div class="modal fade" id="noti-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="noti-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+  aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -72,13 +76,14 @@
     </div>
   </div>
 </div>
-<div id= "load-container" style="display: none;">
+<div id="load-container" style="display: none;">
   <div class="spin-container mw-100">
     <div id="test-case-loader" class=""></div>
   </div>
   <div id="loading-text" class="mw-100">Loading...</div>
 </div>
-<div class="modal fade" id="confirm-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="confirm-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+  aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -126,41 +131,41 @@
     // Function to start the timer
     var tempURL;
     function startTimer(duration, display) {
-            var timer = duration, minutes, seconds;
-            setInterval(function () {
-                minutes = parseInt(timer / 60, 10);
-                seconds = parseInt(timer % 60, 10);
+      var timer = duration, minutes, seconds;
+      setInterval(function () {
+        minutes = parseInt(timer / 60, 10);
+        seconds = parseInt(timer % 60, 10);
 
-                minutes = minutes < 10 ? "0" + minutes : minutes;
-                seconds = seconds < 10 ? "0" + seconds : seconds;
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
 
-                display.textContent = minutes + ":" + seconds;
-                localStorage.setItem(username,timer)
+        display.textContent = minutes + ":" + seconds;
+        localStorage.setItem(username, timer)
 
-                if(timer == 5){
+        if (timer == 5) {
 
-                }
-
-                if (--timer < 0) {
-                  // clearInterval(interval);
-                  window.location.href = "/home/";
-                  sessionStorage.removeItem(username)
-                }
-            }, 1000);
         }
 
-        // Function to initiate the timer when the window loads
-        // window.onload = function () {
-            display = document.querySelector('#time');
-            if(remainingTime){
-              startTimer(remainingTime, display);
-            }
-            else{
-              var TimeCount = 60*60;
-              startTimer(TimeCount, display);
-            }
-        // };
-    
+        if (--timer < 0) {
+          // clearInterval(interval);
+          window.location.href = "/home/";
+          sessionStorage.removeItem(username)
+        }
+      }, 1000);
+    }
+
+    // Function to initiate the timer when the window loads
+    // window.onload = function () {
+    display = document.querySelector('#time');
+    if (remainingTime) {
+      startTimer(remainingTime, display);
+    }
+    else {
+      var TimeCount = 60 * 60;
+      startTimer(TimeCount, display);
+    }
+    // };
+
     $.ajax({
       url: "/download/",
       type: 'GET',
@@ -168,107 +173,115 @@
       processData: false,
       contentType: false,
       headers: {
-          'X-CSRFToken': "{{csrf_token}}"
-        },
-      success: function (response){
-        if(response.files){ 
+        'X-CSRFToken': "{{csrf_token}}"
+      },
+      success: function (response) {
+        if (response.files) {
           let filesHtml = '';
-          let listfile = []; 
-          response.files.forEach(function(file) {
-            if(file.file_name=="" && file.file_url==null){
-            filesHtml += ` 
+          let listfile = [];
+          response.files.forEach(function (file) {
+            if (file.file_name == "" && file.file_url == null) {
+              filesHtml += ` 
             <p> 
                None
             </p> 
-            `; 
-          }
-          else{
-            filesHtml += ` 
+            `;
+            }
+            else {
+              filesHtml += ` 
             <p> 
                ${file.file_name} <a href="/download/${file.file_url}/">Download</a>
                <button class="select-file" data-file-name="${file.file_name}" data-file-url="${file.file_url}">Select</button>
             </p> 
-            `; 
-          }
-          }); 
+            `;
+            }
+          });
           $('#uploaded-file').html(`<div class="w-100">${filesHtml}</div>`);
           // Add click event listener for Select buttons
-           
+
           $('.select-file').on('click', function () {
-          const fileName = $(this).data('file-name');
-          const fileURL = $(this).data('file-url'); 
-          tempURL = fileURL; 
-          //console.log(tempURL); 
-          $('#file-selected').text(fileName);
-          }); 
-          }
-             else { 
-              $('#uploaded-file').html('<p>No files found</p>'); 
-            } 
-          },
-      error: function(){
+            const fileName = $(this).data('file-name');
+            const fileURL = $(this).data('file-url');
+            tempURL = fileURL;
+            //console.log(tempURL); 
+            $('#file-selected').text(fileName);
+          });
+        }
+        else {
+          $('#uploaded-file').html('<p>No files found</p>');
+        }
+      },
+      error: function () {
 
       }
     })
-  
+
     function handleButtonClick() {
-      const button = document.getElementById('send-hex');
-      button.disabled = true;
-  
-      console.log('Task started!');
       console.log(tempURL); // id
-  
-      var data = {
-          id: tempURL 
-      };
-      
-      setTimeout(() => {
-          console.log('Task completed!');
-          button.disabled = false;
+
+      var button = document.getElementById("send-hex");
+      button.disabled = true;
+
+      fetch('/set-data/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 'value': tempURL })
+      })
+        .then(response => response.json())
+        .then(data => {
+          console.log('Data sent successfully:', data);
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+        });
+      setTimeout(function () {
+        button.disabled = false;
       }, 3000); 
-  }
-const button = document.getElementById('send-hex');
-button.addEventListener('click', handleButtonClick);
-});
+    }
+    const button = document.getElementById('send-hex');
+    button.addEventListener('click', handleButtonClick);
+  });
 </script>
 
 <script>
-      // Trigger file input click when button is clicked
-      $('#upload-hex').on('click', function () {
-      $('#hex-file').click();
-    });
+  // Trigger file input click when button is clicked
+  $('#upload-hex').on('click', function () {
+    $('#hex-file').click();
+  });
 
-    // Handle file input change event
-    $('#hex-file').on('change', function () {
-      var formData = new FormData();
-      formData.append('hex_file', this.files[0]);
+  // Handle file input change event
+  $('#hex-file').on('change', function () {
+    var formData = new FormData();
+    formData.append('hex_file', this.files[0]);
 
-      $.ajax({
-        url: "/upload/", // Replace with your actual URL endpoint
-        type: 'POST',
-        data: formData,
-        processData: false,
-        contentType: false,
-        headers: {
-          'X-CSRFToken': "{{csrf_token}}"
-        },
-        success: function (response) {
-          const fileName = response.filename
-          $('#fileContents').text(fileName);
-          // if (response.file_url) {
-          //   $('#uploaded-file').html(`
-          //     <p>File uploaded successfully: ${response.filename}</p>
-          //     <a href="${response.file_url}" download>Download ${response.filename}</a>
-          //   `);
-          // } else {
-          //   $('#uploaded-file').text('Failed to upload the file.');
-          // }
-        },
-        error: function () {
-          $('#uploaded-file').text('An error occurred during the upload.');
-        }
-      });
+    $.ajax({
+      url: "/upload/", // Replace with your actual URL endpoint
+      type: 'POST',
+      data: formData,
+      processData: false,
+      contentType: false,
+      headers: {
+        'X-CSRFToken': "{{csrf_token}}"
+      },
+      success: function (response) {
+        const fileName = response.filename
+        $('#fileContents').text(fileName);
+        // if (response.file_url) {
+        //   $('#uploaded-file').html(`
+        //     <p>File uploaded successfully: ${response.filename}</p>
+        //     <a href="${response.file_url}" download>Download ${response.filename}</a>
+        //   `);
+        // } else {
+        //   $('#uploaded-file').text('Failed to upload the file.');
+        // }
+      },
+      error: function () {
+        $('#uploaded-file').text('An error occurred during the upload.');
+      }
     });
+  });
 </script>
 <script>
 
@@ -832,14 +845,3 @@ button.addEventListener('click', handleButtonClick);
 
 </script> -->
 {% endblock %}
-
-
- 
-
-
-
-
-
-
- 
-
