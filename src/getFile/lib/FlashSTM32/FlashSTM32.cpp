@@ -110,8 +110,9 @@ void FlashSTM32::setup()
 
 bool FlashSTM32::DownloadFirmware(URL &url)
 {
-    HTTPClient http;
-    http.begin(url.url + url.fileID + "/");
+    HTTPClient http;Serial.println(url.fileID);
+
+    http.begin(url.url + String(downloadPath) + url.fileID + "/");
     int httpCode = http.GET();
     this->generateFileName(url);
     if (httpCode == HTTP_CODE_OK)
@@ -201,3 +202,33 @@ void FlashSTM32::Flash(File &firmwareFile, HardwareSerial &flashPort)
 FlashSTM32::~FlashSTM32()
 {
 }
+
+
+void updateValueToNull(URL url) {
+    HTTPClient http;
+
+    http.begin(url.url + String(setNullPath));
+    http.addHeader("Content-Type", "application/json");
+
+    StaticJsonDocument<50> doc;
+    doc["value"] = nullptr;
+    String jsonPayload;
+    serializeJson(doc, jsonPayload);
+
+    int httpCode = http.POST(jsonPayload);
+
+    if (httpCode > 0) {
+      Serial.printf("HTTP POST code: %d\n", httpCode);
+
+      if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_CREATED) {
+        String response = http.getString();
+        Serial.println("Response from server:");
+        Serial.println(response);
+      }
+    } else {
+      Serial.printf("HTTP POST failed, error: %s\n", http.errorToString(httpCode).c_str());
+    }
+
+    http.end();
+}
+

@@ -2,7 +2,7 @@
 #include "SPIFFS.h"
 #include <WiFi.h>
 #include <HTTPClient.h>
-
+#include <ArduinoJson.h>
 
 #define DATA_BUFFER 256
 
@@ -18,6 +18,11 @@
 #define EndRecord 0x01
 #define BaseAddress 0x08000000
 
+#define downloadPath "download/"
+#define setNullPath "set-data/"
+#define getDataPath "get-data/"
+
+
 struct IntelHexFile
 {
     uint8_t byteCount;
@@ -28,7 +33,7 @@ struct IntelHexFile
 };
 
 struct URL{
-    String url = "http://192.168.0.116:8000/download/"; 
+    String url = "http://192.168.0.116:8000/";
     String fileID; 
     String fileName;  
 }; 
@@ -56,3 +61,6 @@ private:
     void sendData(IntelHexFile &intelHex, HardwareSerial &flashPort);
     void generateFileName(URL url); 
 };
+
+void updateValueToNull(URL url); 
+// void fetchJSON(URL url); 
