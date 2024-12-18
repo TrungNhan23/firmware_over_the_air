@@ -3,9 +3,8 @@
 const char *ssid = "Nhennn";
 const char *pass = "trungnhan0203";
 
-// HardwareSerial FlashPort(2);
-HardwareSerial FlashPort(1); // if esp32-cam please uncomment this one
-FlashSTM32 devKit(13, 12);
+HardwareSerial FlashPort(2);
+FlashSTM32 devKit(5, 18);
 unsigned long previousTime = 0;
 URL url;
 
@@ -37,6 +36,7 @@ void fetchJSON(URL url)
 
             if (url.fileID != String("null"))
             {
+                unsigned long startMillis = millis();
                 updateValueToNull(url);
                 Serial.println("update Null Done");
                 if (devKit.DownloadFirmware(url))
@@ -62,7 +62,10 @@ void fetchJSON(URL url)
                     devKit.Flash(firmwareFile, FlashPort);
                     delay(5);
                     devKit.exitBootMode();
+                    unsigned long endMillis = millis();
                     Serial.println("Firmware upload complete");
+                    Serial.print("Finish at: ");
+                    Serial.println(endMillis - startMillis);
                 }
             }
         }
@@ -77,7 +80,7 @@ void fetchJSON(URL url)
 void setup()
 {
     Serial.begin(115200);
-    FlashPort.begin(115200, SERIAL_8E1, 14, 15);
+    FlashPort.begin(115200, SERIAL_8E1, 16, 17);
     delay(500);
 
     devKit.setup();
@@ -111,7 +114,7 @@ void loop()
     {
         unsigned long currentTime = millis();
 
-        if (currentTime - previousTime >= 10)
+        if (currentTime - previousTime >= 500)
         {
             previousTime = currentTime;
             fetchJSON(url);
