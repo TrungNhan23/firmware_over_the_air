@@ -103,26 +103,29 @@
   $(document).ready(function () {
     let username = $('#user_name').text();
     let remainingTime = sessionStorage.getItem(username);
+
+    $('#send-hex').prop("disabled",true);
+
     // Event function to be called when the user navigate to another web page
-    // window.onbeforeunload = function(){
-    //   // var navigationType = performance.navigation.type;
-    //   //   if (navigationType != performance.navigation.TYPE_RELOAD) {
-    //   //       console.log("Reach remove");
-    //   //       consloe.log(username)
-    //   //       localStorage.removeItem(username);
-    //   //   }
-    //   // localStorage.removeItem(username)
-    //               // var entries = performance.getEntriesByType("navigation");
-    //               // if(entries.length > 0)
-    //               // {
-    //               //   var lastentry = entries[entries.length - 1]
-    //               //   if(lastentry.type != "reload"){
-    //               //     console.log("Reach remove")
-    //               //     localStorage.removeItem(username)
-    //               //   }
-    //               // }
-    //   localStorage.removeItem(username)
-    // };
+    window.onbeforeunload = function(){
+      var navigationType = performance.navigation.type;
+        if (navigationType != performance.navigation.TYPE_RELOAD) {
+            console.log("Reach remove");
+            consloe.log(username)
+            localStorage.removeItem(username);
+        }
+      // localStorage.removeItem(username)
+                  // var entries = performance.getEntriesByType("navigation");
+                  // if(entries.length > 0)
+                  // {
+                  //   var lastentry = entries[entries.length - 1]
+                  //   if(lastentry.type != "reload"){
+                  //     console.log("Reach remove")
+                  //     localStorage.removeItem(username)
+                  //   }
+                  // }
+      // localStorage.removeItem(username)
+    };
     // Function to start the timer
     function startTimer(duration, display) {
             var timer = duration, minutes, seconds;
@@ -143,7 +146,7 @@
                 if (--timer < 0) {
                   // clearInterval(interval);
                   window.location.href = "/home/";
-                  sessionStorage.removeItem(username)
+                  localStorage.removeItem(username)
                 }
             }, 1000);
         }
@@ -194,6 +197,7 @@
           $('.select-file').on('click', function () {
           const fileName = $(this).data('file-name');
           $('#file-selected').text(fileName);
+          $('#send-hex').prop("disabled",false);
           }); 
           }
              else { 
@@ -217,6 +221,7 @@
     $('#hex-file').on('change', function () {
       var formData = new FormData();
       formData.append('hex_file', this.files[0]);
+      $('#send-hex').prop("disabled",false);
 
       $.ajax({
         url: "/upload/", // Replace with your actual URL endpoint
