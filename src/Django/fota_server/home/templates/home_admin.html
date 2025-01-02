@@ -50,8 +50,8 @@
     </div>
     <div class="col-sm-4 col-5 h-100">
       <div class="row align-items-center form-select-ex-plan mr-5 h-100">
-        <label for="time" class="h-10 w-100">Time counter</label>
-        <div class="w-100">Time remaining: <span id="time">00:00</span></div>
+        {% comment %} <label for="time" class="h-10 w-100">Time counter</label>
+        <div class="w-100">Time remaining: <span id="time">00:00</span></div> {% endcomment %}
       </div>
     </div>
   </div>
@@ -130,40 +130,40 @@
     };
     // Function to start the timer
     var tempURL;
-    function startTimer(duration, display) {
-      var timer = duration, minutes, seconds;
-      setInterval(function () {
-        minutes = parseInt(timer / 60, 10);
-        seconds = parseInt(timer % 60, 10);
-
-        minutes = minutes < 10 ? "0" + minutes : minutes;
-        seconds = seconds < 10 ? "0" + seconds : seconds;
-
-        display.textContent = minutes + ":" + seconds;
-        localStorage.setItem(username, timer)
-
-        if (timer == 5) {
-
-        }
-
-        if (--timer < 0) {
-          // clearInterval(interval);
-          window.location.href = "/home/";
-          sessionStorage.removeItem(username)
-        }
-      }, 1000);
-    }
+//    function startTimer(duration, display) {
+      //var timer = duration, minutes, seconds;
+      //setInterval(function () {
+      //  minutes = parseInt(timer / 60, 10);
+      //  seconds = parseInt(timer % 60, 10);
+//
+      //  minutes = minutes < 10 ? "0" + minutes : minutes;
+      //  seconds = seconds < 10 ? "0" + seconds : seconds;
+//
+      //  display.textContent = minutes + ":" + seconds;
+      //  localStorage.setItem(username, timer)
+//
+      //  if (timer == 5) {
+//
+      //  }
+//
+      //  if (--timer < 0) {
+      //    // clearInterval(interval);
+      //    window.location.href = "/home/";
+      //    sessionStorage.removeItem(username)
+      //  }
+      //}, 1000);
+//    }
 
     // Function to initiate the timer when the window loads
     // window.onload = function () {
-    display = document.querySelector('#time');
-    if (remainingTime) {
-      startTimer(remainingTime, display);
-    }
-    else {
-      var TimeCount = 60 * 60;
-      startTimer(TimeCount, display);
-    }
+ //   display = document.querySelector('#time');
+ //   if (remainingTime) {
+ //     startTimer(remainingTime, display);
+ //   }
+ //   else {
+ //     var TimeCount = 60 * 60;
+ //     startTimer(TimeCount, display);
+ //   }
     // };
 
     $.ajax({
