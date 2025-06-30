@@ -1,35 +1,28 @@
-# USING FOTA(FIRMWARE OVER THE AIR) FOR EMBEDDED DEVICES IN LABORARY
+# Firmware Over-The-Air (FOTA) for Embedded Devices
+
+This project implements a lightweight **Firmware Over-The-Air (FOTA)** update system designed for resource-constrained embedded systems. It enables devices to download and apply firmware updates remotely via serial communication interfaces.
+
+## Overview
+
+- Designed for microcontrollers such as **STM32F103**
+- Supports firmware update via UART or custom data protocol
+- Uses a **bootloader–application** split architecture
+- Verifies firmware integrity using checksum
+- Reduces the need for physical access to reprogram devices
+
+## Workflow
+
+1. Device boots into **bootloader**.
+2. Bootloader checks if new firmware is available:
+   - Either via flag in flash or command from host
+3. If available:
+   - Downloads firmware chunk-by-chunk
+   - Verifies checksum
+   - Writes new firmware to application area
+4. Transfers control to application on success.
 
 
-# NOTE: 
-    - SDLC: Agile
-    - Weekly report: Afternoon Saturday. 
-    - If we have report from instructor, just report everything we have. 
-
-# REQUIREMENTS
-    - Designing the development kit (at least 5 modules in that kit)
-        + Design a PCB for development kit. 
-        + Handle the conflict in HW (if have)
-        + Handle Flash code to STM32 via UART 
-        + Customize bootloader to flash with UART 
-        + ...TBU
-    - A website for management kit have these features: 
-        + Login, logout user (UI, manage users) - 1 week 
-        + Store the executable file (hex, bin,...) - 1 week
-        + Have flash button to flash executable file into the kit from far. - 0.5 week
-        + Streaming video for tracking the development kit, stop stream in during flash, continue to stream if they flash sucessfully.  - 2 weeks
-        + Handle for case if more than 2 users access to 1 kit(can use the disable button if that kit not available or using queue to access)  - 1 week
-
-        + Have Erase button to delete data in memory of MCU (optional). 
-        + Do a history of push file to website (optional). 
-        + Have a feature to interact with kit(push a button,...) (optional).
-
-    - Using the another kit for flash and stream video (ESP32-cam)
-        + Have a feature Flash code. 
-        + Have a feature streaming video.
-        + Have a feature to comunicate with Website.
-        + Interact with HW (optional).
-        + ...TBU
-
-
-# SCHEDULE FOR TASK (DURATION 7 WEEKS) 
+## Future work
+- Add support for encrypted firmware
+- Add rollback mechanism in case of update failure
+- Support wireless protocols (BLE, LoRa, etc.)
